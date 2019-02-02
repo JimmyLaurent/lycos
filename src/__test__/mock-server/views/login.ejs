@@ -1,0 +1,49 @@
+
+<% var title = 'Authentication Example' %>
+<% include head %>
+
+<h1>Login</h1>
+<%- message %>
+Try accessing <a href="/restricted">/restricted</a>, then authenticate with "admin" and "password".
+<p></p>
+<div>Classic login (only works with post querystring)</div>
+<form method="post" action="/login">
+  <p>
+    <label>Username:</label>
+    <input type="text" name="username">
+  </p>
+  <p>
+    <label>Password:</label>
+    <input type="text" name="password">
+  </p>
+  <p>
+    <input type="submit" value="Login">
+  </p>
+</form>
+
+<div>Multipart Form Data login (only works with formdata)</div>
+<form method="post" action="/loginMultipartFormData" enctype="multipart/form-data">
+  <p>
+    <label>Username:</label>
+    <input type="text" name="username">
+  </p>
+  <p>
+    <label>Password:</label>
+    <input type="text" name="password">
+  </p>
+  <p>
+    <input type="submit" value="Login">
+  </p>
+</form>
+
+<form method="post" action="/post">
+  <p>
+    <label>Post field:</label>
+    <input type="text" name="postFieldData">
+  </p>
+  <p>
+    <input type="submit" value="Login">
+  </p>
+</form>
+
+<% include foot %>

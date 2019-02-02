@@ -1,0 +1,69 @@
+{
+  "name": "lycos",
+  "version": "1.0.0",
+  "description": "All the goodies you'll ever need to scrape the web",
+  "homepage": "https://jimmylaurent.github.io/lycos",
+  "main": "src/lycos.js",
+  "browser": "dist/lycos.browser.js",
+  "author": "Jimmy Laurent",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/JimmyLaurent/lycos.git"
+  },
+  "bugs": {
+    "url": "https://github.com/JimmyLaurent/lycos/issues"
+  },
+  "keywords": [
+    "scraper",
+    "scrape",
+    "scraper",
+    "structure",
+    "web"
+  ],
+  "scripts": {
+    "build": "set NODE_ENV=production&& parcel build ./src/lycos.js --global lycos --out-dir dist --out-file lycos.browser.js --target browser --detailed-report",
+    "build-browser-example": "parcel build entry.js --global Lycos ./examples/browser/index.html",
+    "serve-browser-example": "parcel serve entry.js --global Lycos --port 1111 ./examples/browser/index.html",
+    "test": "jest",
+    "test-server": "node ./src/__test__/mock-server/staticServer.js"
+  },
+  "dependencies": {
+    "axios": "^0.18.0",
+    "boolbase": "^1.0.0",
+    "css-select": "^2.0.2",
+    "css-what": "^2.1.2",
+    "domhandler": "^2.3.0",
+    "domutils": "^1.5.1",
+    "entities": "^1.1.1",
+    "es6-promise-pool": "^2.5.0",
+    "form-data": "^2.3.3",
+    "inherits": "^2.0.1",
+    "nth-check": "^1.0.2",
+    "regenerator-runtime": "^0.13.1",
+    "string-format": "^2.0.0",
+    "url-parse": "^1.4.4"
+  },
+  "devDependencies": {
+    "ejs": "^2.6.1",
+    "express": "^4.16.4",
+    "express-form-data": "^2.0.6",
+    "express-session": "^1.15.6",
+    "jest": "^23.6.0",
+    "parcel": "^1.11.0",
+    "parcel-plugin-bundle-visualiser": "^1.2.0"
+  },
+  "browserslist": [
+    "last 2 Chrome versions"
+  ],
+  "jest": {
+    "testEnvironment": "node"
+  },
+  "prettier": {
+    "singleQuote": true,
+    "trailingComma": "none",
+    "parser": "flow",
+    "semi": true,
+    "tabWidth": 2
+  }
+}

@@ -1,0 +1,10 @@
+#tests
+coverage
+src/__test__
+
+node_modules
+examples
+TODO.md
+.vscode
+.cache
+docs
