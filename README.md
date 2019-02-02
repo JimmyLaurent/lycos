@@ -1,7 +1,7 @@
 
 <div align="center">
 <h1>🐾 lycos.js</h1>
-<p>Go get it ! (All the goodies you'll ever need to scrape the web)</p>
+<p>All the goodies you'll ever need to scrape the web</p>
 </div>
 
 ## Documentation

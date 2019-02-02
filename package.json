@@ -2,7 +2,7 @@
   "name": "lycos",
   "version": "1.0.0",
   "description": "All the goodies you'll ever need to scrape the web",
-  "homepage": "https://jimmylaurent.github.io/lycos",
+  "homepage": "https://jimmylaurent.github.io/lycos/",
   "main": "src/lycos.js",
   "browser": "dist/lycos.browser.js",
   "author": "Jimmy Laurent",
