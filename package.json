@@ -1,6 +1,6 @@
 {
   "name": "lycos",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "All the goodies you'll ever need to scrape the web",
   "homepage": "https://jimmylaurent.github.io/lycos/",
   "main": "src/lycos.js",
