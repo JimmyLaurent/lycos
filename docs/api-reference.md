@@ -9,7 +9,7 @@ Any `request config` is similar to what you would use with axios (check axios [d
 There is one additionnal property `saveCookies` that you can add to any `request config` to preserve cookies between requests. 
 
 ### request
-Send a request and return a page scraper
+Send a request and return a page scraper.
 
 ##### lycos.request(config)
 
@@ -114,7 +114,7 @@ Return an iterator which allow to iterate over all pagination links.
 const results = await lycos
     .get('http://quotes.toscrape.com/')
     .paginate('.next > a')
-    .asyncMap(pageScraper => (...));;
+    .asyncMap(pageScraper => (...));
 
 // Get pagination links from a function
 // it uses the returned url to fech the next url
@@ -412,7 +412,7 @@ const attributes = pageScraper.scrape('div').attributes();
 ```
 
 ### link
-Get the first link and transform it to an absolute url if necessary  
+Get the first link and transform it to an absolute url if necessary.
 
 ##### scraper.link([selector])
 
@@ -422,7 +422,7 @@ const url = pageScraper.link('a');
 ```
 
 ### links
-Get links matching the filters and transform them to absolute urls if necessary
+Get links matching the filters and transform them to absolute urls if necessary.
 
 ##### scraper.links([selector])
 ##### scraper.links([filters])

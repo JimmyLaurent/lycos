@@ -32,13 +32,13 @@ const quotes = await lycos
   });
 ```
 
-## Paginate and limit to two pages
+## Paginate and limit to three pages
 
 ```js
 const lycos = require('lycos');
 
 // Fetch the given url, iterate over 
-// the two next pages and return an
+// the three next pages and return an
 // object containing the page utl and title
 const results = await lycos
   .get('http://quotes.toscrape.com/')
