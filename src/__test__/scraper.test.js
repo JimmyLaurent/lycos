@@ -177,12 +177,37 @@ describe('Scraper', () => {
     expect(href).toMatch('/tag/simile/');
   });
 
+  it('scrape link with a scraping expression without selector', () => {
+    const page = parseHtml(html, 'http://localhost');
+    const expectedLink = 'http://localhost/tag/love/';
+
+    const linkTag = page.scrape('.tag-item');
+    const link = linkTag.scrape('@link');
+    expect(link).toEqual(expectedLink);
+  });
+
   it('scrape link with a scraping expression', () => {
     const page = parseHtml(html, 'http://localhost');
     const expectedLink = 'http://localhost/tag/love/';
 
     const link = page.scrape('.tag-item@link');
     expect(link).toEqual(expectedLink);
+  });
+
+  it('previousAll', () => {
+    const page = parseHtml(html, 'http://localhost');
+    const expectedLinks = [
+      'http://localhost/tag/love/',
+      'http://localhost/tag/inspirational/'
+    ];
+
+    const links = page
+      .scrapeAll('.tag-item')
+      .eq(2)
+      .previousAll('.tag-item')
+      .map(e => e.link());
+
+    expect(links).toEqual(expectedLinks);
   });
 
   it('scrape links with a scraping expression', () => {
@@ -249,8 +274,8 @@ describe('Scraper', () => {
         .replace(/(?:\r\n|\r|\n)/g, '')
     );
     expect(previousElementsTexts).toEqual([
-      'by Albert Einstein        (about)',
-      '“The world as we have created it is a process of our thinking. It cannot be changed without changing our thinking.”'
+      '“The world as we have created it is a process of our thinking. It cannot be changed without changing our thinking.”',
+      'by Albert Einstein        (about)'
     ]);
   });
 
@@ -267,6 +292,28 @@ describe('Scraper', () => {
 
     const isTagInTags = page.scrape('.tags').has('.tag');
     expect(isTagInTags).toBe(true);
+  });
+
+  it('eq', () => {
+    const page = parseHtml(html, 'http://localhost');
+
+    const tag = page
+      .scrapeAll('.tags > .tag')
+      .eq(3)
+      .text();
+
+    expect(tag).toEqual('world');
+  });
+
+  it('negative eq', () => {
+    const page = parseHtml(html, 'http://localhost');
+
+    const tag = page
+      .scrapeAll('.tags > .tag')
+      .eq(-3)
+      .text();
+
+    expect(tag).toEqual('humor');
   });
 
   it('links with scraping expression selector', () => {

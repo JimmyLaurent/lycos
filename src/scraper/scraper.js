@@ -39,7 +39,9 @@ function parseScrapingExpression(str) {
 }
 
 function getParent(element, locationUrl = '') {
-  return createNode([element.parent], locationUrl);
+  return element.parent
+    ? new ScraperNode([element.parent], locationUrl)
+    : new ScraperNode([], locationUrl);
 }
 
 const HTMLPARSER_OPTIONS = {
@@ -111,7 +113,7 @@ function getAttribute(element, name) {
 
 function scrapeAll(dom, locationUrl, selector) {
   const elementIterator = scrapeAllGenerator(dom, locationUrl, selector);
-  const elements = [];
+  const elements = ScraperNode();
   for (let element of elementIterator) {
     elements.push(element);
   }
@@ -130,7 +132,7 @@ function* scrapeAllGenerator(dom, locationUrl, selector) {
           )
         : '';
     } else {
-      yield createNode([element], locationUrl);
+      yield new ScraperNode([element], locationUrl);
     }
   }
 }
@@ -170,7 +172,10 @@ function scrape(dom, locationUrl, selector) {
 
 function scrapeStringSelector(dom, locationUrl, selector) {
   const expression = parseScrapingExpression(selector);
-  const element = selectOne(expression.selector, dom);
+  const element =
+    expression.selector || !dom.length
+      ? selectOne(expression.selector, dom)
+      : dom[0];
   if (expression.attribute) {
     return element
       ? applyFilters(
@@ -179,9 +184,7 @@ function scrapeStringSelector(dom, locationUrl, selector) {
         )
       : undefined;
   }
-  if (element) {
-    return createNode([element], locationUrl);
-  }
+  return new ScraperNode(element ? [element] : [], locationUrl);
 }
 
 function getHtml(elements, renderOptions) {
@@ -195,7 +198,7 @@ function getValue(element, name, locationUrl) {
     case 'text':
       return getText([element]);
     case 'link':
-      return getLink(locationUrl, createNode([element], locationUrl));
+      return getLink(locationUrl, new ScraperNode([element], locationUrl));
     default:
       return getAttribute(element, name);
   }
@@ -224,7 +227,7 @@ function scrapeEntryPoint(...args) {
 function getFirst(elements, locationUrl, selector) {
   return selector
     ? scrape(elements, locationUrl, selector)
-    : createNode([elements[0]], locationUrl);
+    : new ScraperNode([elements[0]], locationUrl);
 }
 
 function getLast(elements, locationUrl, selector) {
@@ -237,25 +240,31 @@ function getLast(elements, locationUrl, selector) {
     : null;
 }
 
-function getChildren(elements) {
-  return elements[0].children.filter(e => isTagType(e.type));
+function getChildren(elements, locationUrl) {
+  if (elements && elements.length && elements[0].children) {
+    return ScraperNode(
+      elements[0].children.filter(e => isTagType(e.type)),
+      locationUrl
+    );
+  }
+  return ScraperNode([], locationUrl);
 }
 
 function getNext(element, locationUrl) {
   let nextElement = element;
   while ((nextElement = nextElement.next)) {
     if (isTagType(nextElement.type)) {
-      return createNode([nextElement], locationUrl);
+      return new ScraperNode([nextElement], locationUrl);
     }
   }
 }
 
 function getNextAll(element, locationUrl) {
   let nextElement = element;
-  let nextElements = [];
+  let nextElements = ScraperNode();
   while ((nextElement = nextElement.next)) {
     if (isTagType(nextElement.type)) {
-      nextElements.push(createNode([nextElement], locationUrl));
+      nextElements.push(new ScraperNode([nextElement], locationUrl));
     }
   }
   return nextElements;
@@ -265,29 +274,33 @@ function getPrevious(element, locationUrl) {
   let previousElement = element;
   while ((previousElement = previousElement.prev)) {
     if (isTagType(previousElement.type)) {
-      return createNode([previousElement], locationUrl);
+      return new ScraperNode([previousElement], locationUrl);
     }
   }
 }
 
-function getPreviousAll(element, locationUrl) {
+function getPreviousAll(element, locationUrl, selector) {
   let previousElement = element;
   let previousElements = [];
   while ((previousElement = previousElement.prev)) {
-    if (isTagType(previousElement.type)) {
-      previousElements.push(createNode([previousElement], locationUrl));
+    if (
+      isTagType(previousElement.type) &&
+      previousElements.indexOf(previousElement) === -1 &&
+      (!selector || is(previousElement, selector))
+    ) {
+      previousElements.push(new ScraperNode([previousElement], locationUrl));
     }
   }
-  return previousElements;
+  return ScraperNode(previousElements.reverse());
 }
 
 function has(elements, selector) {
-  return !!createNode(elements).scrape(selector);
+  return !!elements.scrape(selector);
 }
 
 function parseHtml(html, locationUrl = '', parserOptions = {}) {
   const dom = parseDOM(html, { ...HTMLPARSER_OPTIONS, ...parserOptions });
-  return createNode(dom, locationUrl);
+  return new ScraperNode(dom, locationUrl);
 }
 
 async function saveHtml(elements, path) {
@@ -302,36 +315,103 @@ async function saveHtml(elements, path) {
   });
 }
 
-function createNode(elements, locationUrl) {
-  elements.location = locationUrl;
-  elements.scrapeAll = (...args) =>
-    scrapeAllEntryPoint(elements, locationUrl, ...args);
-  elements.scrapeAllGenerator = (...args) =>
-    scrapeAllGenerator(elements, locationUrl, ...args);
-  elements.scrape = (...args) =>
-    scrapeEntryPoint(elements, locationUrl, ...args);
-  elements.text = () => getText(elements);
-  elements.html = () => getHtml(elements);
-  elements.attribute = name => getAttribute(elements[0], name);
-  elements.attributes = () => getAttributes(elements[0]);
-  elements.link = selector => getLink(locationUrl, elements, selector);
-  elements.links = selector => getLinks(locationUrl, elements, selector);
-  elements.linksGenerator = selector =>
-    getLinksGenerator(locationUrl, elements, selector);
-  elements.parent = () => getParent(elements[0], locationUrl);
-  elements.first = selector => getFirst(elements, locationUrl, selector);
-  elements.last = selector => getLast(elements, locationUrl, selector);
-  elements.children = () => getChildren(elements);
-  elements.next = () => getNext(elements[0], locationUrl);
-  elements.nextAll = () => getNextAll(elements[0], locationUrl);
-  elements.previous = () => getPrevious(elements[0], locationUrl);
-  elements.previousAll = () => getPreviousAll(elements[0], locationUrl);
-  elements.is = selector => is(elements[0], selector);
-  elements.has = selector => has(elements, selector);
-  elements.saveHtml = path => saveHtml(elements, path);
+const ScraperNode = function(elements, locationUrl) {
+  var elementsArray = elements || [];
+  elementsArray.__proto__ = { location: locationUrl };
+  elementsArray.__proto__.__proto__ = ScraperNode.prototype;
+  return elementsArray;
+};
 
-  return elements;
-}
+ScraperNode.prototype = Object.create(Array.prototype);
+
+ScraperNode.prototype.scrape = function(...args) {
+  return scrapeEntryPoint(this, this.location, ...args);
+};
+
+ScraperNode.prototype.scrapeAll = function(...args) {
+  return scrapeAllEntryPoint(this, this.location, ...args);
+};
+
+ScraperNode.prototype.scrapeAllGenerator = function(...args) {
+  return scrapeAllGenerator(this, this.location, ...args);
+};
+
+ScraperNode.prototype.text = function() {
+  return getText(this);
+};
+
+ScraperNode.prototype.html = function(renderOptions) {
+  return getHtml(this, renderOptions);
+};
+
+ScraperNode.prototype.attribute = function(name) {
+  return getAttribute(this.length ? this[0] : null, name);
+};
+
+ScraperNode.prototype.attributes = function(name) {
+  return getAttributes(this, name);
+};
+
+ScraperNode.prototype.link = function(selector) {
+  return getLink(this.location, this, selector);
+};
+
+ScraperNode.prototype.links = function(selector) {
+  return getLinks(this.location, this, selector);
+};
+
+ScraperNode.prototype.linksGenerator = function(selector) {
+  return getLinksGenerator(this.location, this, selector);
+};
+
+ScraperNode.prototype.parent = function() {
+  return getParent(this.length ? this[0] : null, this.location);
+};
+
+ScraperNode.prototype.first = function(selector) {
+  return getFirst(this, this.location, selector);
+};
+
+ScraperNode.prototype.last = function(selector) {
+  return getLast(this, this.location, selector);
+};
+
+ScraperNode.prototype.children = function() {
+  return getChildren(this, this.location);
+};
+
+ScraperNode.prototype.next = function() {
+  return getNext(this.length ? this[0] : null, this.location);
+};
+
+ScraperNode.prototype.nextAll = function(selector) {
+  return getNextAll(this.length ? this[0] : null, this.location, selector);
+};
+
+ScraperNode.prototype.previous = function(selector) {
+  return getPrevious(this.length ? this[0] : null, this.location, selector);
+};
+ScraperNode.prototype.previousAll = function(selector) {
+  return getPreviousAll(this.length ? this[0] : null, this.location, selector);
+};
+ScraperNode.prototype.is = function(selector) {
+  return is(this.length ? this[0] : null, selector);
+};
+ScraperNode.prototype.has = function(selector) {
+  return has(this, selector);
+};
+ScraperNode.prototype.saveHtml = function(path) {
+  return saveHtml(this, path);
+};
+
+ScraperNode.prototype.eq = function(index) {
+  index = parseInt(index);
+
+  if (index < 0) {
+    index = this.length + index;
+  }
+  return this[index] ? this[index] : new ScraperNode([], this.location);
+};
 
 module.exports = {
   parseHtml,
