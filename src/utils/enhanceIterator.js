@@ -6,7 +6,6 @@ function enhanceIterator(iterator) {
   return iterator;
 }
 
-//enhanceIterator.prototype = Object.create(Array.prototype);
 enhanceIterator.prototype.asyncForEach = function(fn, config) {
   return this.asyncReduce(
     async (accumulator, current, index) => {
