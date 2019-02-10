@@ -259,11 +259,15 @@ function getNext(element, locationUrl) {
   }
 }
 
-function getNextAll(element, locationUrl) {
+function getNextAll(element, locationUrl, selector) {
   let nextElement = element;
   let nextElements = ScraperNode();
   while ((nextElement = nextElement.next)) {
-    if (isTagType(nextElement.type)) {
+    if (
+      isTagType(nextElement.type) &&
+      nextElements.indexOf(nextElement) === -1 &&
+      (!selector || is(nextElement, selector))
+    ) {
       nextElements.push(new ScraperNode([nextElement], locationUrl));
     }
   }

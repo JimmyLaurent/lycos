@@ -243,17 +243,15 @@ describe('Scraper', () => {
     expect(element[0].tagName).toEqual('footer');
   });
 
-  it('next all', () => {
+  it('next all with selector', () => {
     const page = parseHtml(html, 'http://localhost');
 
-    const nextElements = page.scrape('.keywords').nextAll();
-    const nextElementsTexts = nextElements.map(e => e.text());
-    expect(nextElementsTexts).toEqual([
-      'change',
-      'deep-thoughts',
-      'thinking',
-      'world'
-    ]);
+    const nextElements = page
+      .scrape('.keywords')
+      .nextAll('[href="/tag/change/page/1/"]');
+    
+    const nextTagElementsTexts = nextElements.map(e => e.text());
+    expect(nextTagElementsTexts).toEqual(['change']);
   });
 
   it('previous', () => {

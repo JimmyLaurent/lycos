@@ -1,44 +1,40 @@
 const enhanceIterator = require('./enhanceIterator');
 
 function addSraperShortcuts(object) {
-  const newObject = {};
-  Object.keys(object).forEach(k => {
-    newObject[k] = (...args) => object[k](...args);
-  });
-  [
-    'scrapeAll',
-    'scrapeAllGenerator',
-    'scrape',
-    'text',
-    'html',
-    'attribute',
-    'attributes',
-    'link',
-    'links',
-    'linksGenerator',
-    'parent',
-    'first',
-    'last',
-    'children',
-    'next',
-    'nextAll',
-    'previous',
-    'previousAll',
-    'is',
-    'has'
-  ].forEach(k => {
-    newObject[k] = function(...args) {
-      async function doFn() {
-        const page = await object;
-        return page[k](...args);
-      }
-      return enhanceIterator(doFn());
-    };
-  });
-
-  newObject.then = (...args) => object.then(...args);
-
-  return enhanceIterator(newObject);
+  Object.assign(object.__proto__, addSraperShortcuts.prototype);
+  return enhanceIterator(object);
 }
+
+[
+  'scrapeAll',
+  'scrapeAllGenerator',
+  'scrape',
+  'text',
+  'html',
+  'attribute',
+  'attributes',
+  'link',
+  'links',
+  'linksGenerator',
+  'parent',
+  'first',
+  'last',
+  'children',
+  'next',
+  'nextAll',
+  'previous',
+  'previousAll',
+  'is',
+  'has'
+].forEach(k => {
+  addSraperShortcuts.prototype[k] = function(...args) {
+    const self = this;
+    async function doFn() {
+      const page = await self;
+      return page[k](...args);
+    }
+    return enhanceIterator(doFn());
+  };
+});
 
 module.exports = addSraperShortcuts;
