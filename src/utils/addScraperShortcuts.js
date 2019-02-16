@@ -31,10 +31,15 @@ function addSraperShortcuts(object) {
     const self = this;
     async function doFn() {
       const page = await self;
+      if(this.debug) debugger;
       return page[k](...args);
     }
     return enhanceIterator(doFn());
   };
 });
+
+addSraperShortcuts.prototype.debug = function() {
+  this.debug = true;
+}
 
 module.exports = addSraperShortcuts;
