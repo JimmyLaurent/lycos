@@ -35,6 +35,7 @@ npm i lycos
 ```js
 const lycos = require('lycos');
 
+(async () => {
 // Fetch the given url and return a page scraper
 const page = await lycos.get('http://quotes.toscrape.com');
 
@@ -60,6 +61,8 @@ const quotes = await lycos
     author: '.author@text',
     text: '.text@text'
   });
+
+})();
 ```
 
 ## Credits
