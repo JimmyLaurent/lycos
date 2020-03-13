@@ -32,31 +32,34 @@ npm i lycos
 - 🔧 Extensible
 
 ## Quick Example
-
 ```js
 const lycos = require('lycos');
 
-// Get page from the url and paginate through all
-// the next pages to extract quotes
+// Fetch the given url and return a page scraper
+const page = await lycos.get('http://quotes.toscrape.com');
+
+// Scrape all the quotes elements
+const quoteElements = page.scrapeAll('.quote');
+
+// For each quote element, scrape the text and the author 
+const quotes = quoteElements.map(element => ({
+    text: element.scrape('.text').text(),
+    author: element.scrape('.author').text()
+}));
+
+// Shortcut to scrape the collection of quotes
+const quotes = page.scrapeAll('.quote', {
+  author: '.author@text',
+  text: '.text@text'
+});
+
+// Shortcut to fetch and scrape
 const quotes = await lycos
-  .get('http://quotes.toscrape.com/')
-  .paginate('.next > a')
-  .asyncFlatMap(pageScraper =>
-    pageScraper.scrapeAll('.quote', {
-      author: '.author@text',
-      text: '.text@text'
-    })
-  );
-```
-```json
-<!-- quotes -->
-[
-  { 
-  "author": "Albert Einstein", 
-  "text": "“The world as we have created it is a process of our thinking.“"
-  },
-  ...
-]
+  .get('http://quotes.toscrape.com')
+  .scrapeAll('.quote', {
+    author: '.author@text',
+    text: '.text@text'
+  });
 ```
 
 ## Credits
