@@ -29,7 +29,7 @@
     "test-server": "node ./src/__test__/mock-server/staticServer.js"
   },
   "dependencies": {
-    "axios": "^0.18.0",
+    "axios": "^0.21.1",
     "boolbase": "^1.0.0",
     "css-select": "^2.0.2",
     "css-what": "^2.1.2",
